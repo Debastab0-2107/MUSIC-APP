@@ -7,6 +7,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,6 +20,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
@@ -35,6 +37,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Size
@@ -133,7 +136,7 @@ fun SongProgress(value: Float, onValueChange: (Float) -> Unit) {
                     cornerRadius = CornerRadius(50f, 50f)
                 )
                 drawRoundRect(
-                    color = Color.Black,
+                    color = Color.White,
                     size = Size(size.width * progress, size.height),
                     cornerRadius = CornerRadius(50f, 50f)
                 )
@@ -163,7 +166,7 @@ fun PlaybackControl(
             Icon(
                 imageVector = icon,
                 contentDescription = contentDescription,
-                tint = Color.DarkGray,   //MaterialTheme.colorScheme.onPrimary,
+                tint = Color.White,   //MaterialTheme.colorScheme.onPrimary,
                 modifier = Modifier.align(Alignment.Center)
             )
         }
@@ -189,7 +192,7 @@ fun CrossfadeIcon(
                      imageVector = Icons.Filled.Settings,
                      contentDescription = "Pause",
                      modifier = Modifier.size(48.dp),
-                     tint = Color.Black
+                     tint = Color.White
 
                  )
 
@@ -198,7 +201,7 @@ fun CrossfadeIcon(
                      imageVector = Icons.Filled.PlayArrow,
                      contentDescription = "Play",
                      modifier = Modifier.size(48.dp),
-                     tint = Color.Black
+                     tint = Color.White
                  )
              }
          }
@@ -218,27 +221,31 @@ fun NowPlayScreenn(
 
 
     Surface( modifier=Modifier.fillMaxSize()) {
-        Column(modifier=Modifier.background(Color.White).padding(10.dp).fillMaxSize()){
+        Column(modifier=Modifier.background(Color.Black).padding(10.dp).fillMaxSize()){
+            Spacer(modifier = Modifier.size(40.dp))
             Image(
                 painter = painterResource(R.drawable.cover),
                 null,
                 modifier = Modifier
                     .fillMaxWidth()
                     .aspectRatio(1f)
+                    .padding(10.dp)
+                    .clip(RoundedCornerShape(30.dp))
+                    .border(2.5.dp, Color.White,RoundedCornerShape(30.dp) )
             )
             Text(
                 text="Song Title",
-                fontSize = 20.sp,
+                fontSize = 27.sp,
                 fontFamily = FontFamily.Serif,
                 modifier = Modifier.padding(start = 12.dp, top = 10.dp),
-                color = Color.Black
+                color = Color.White
             )
             Text(
                 text="Artist Name ",
-                fontSize = 15.sp,
+                fontSize = 20.sp,
                 fontFamily = FontFamily.Serif,
                 modifier = Modifier.padding(start = 12.dp),
-                color = Color.Black
+                color = Color.White
             )
             SongProgress(value = sliderPosition, onValueChange = { sliderPosition = it } )
             Row(
