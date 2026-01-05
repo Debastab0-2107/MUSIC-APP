@@ -9,12 +9,21 @@ data class Song(
     val title: String,
     val artist: String,
     //val duration: Int?,
-    //val uri: Uri? = null
+    val albumid : Long?
 ){
     fun getUri(): Uri {
         return ContentUris.withAppendedId(
             MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
             id
         )
+    }
+    fun getAlbumArtUri(): Uri? {
+        return albumid?.let {
+             ContentUris.withAppendedId(
+                MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI,
+                it
+            )
+        }
+
     }
 }

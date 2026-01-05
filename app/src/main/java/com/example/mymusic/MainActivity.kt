@@ -69,7 +69,7 @@ class MainActivity : ComponentActivity() {
 fun MyMusicApp(playerViewModel: PlayerViewModel) {
 
     val navCtrl =rememberNavController()
-    Scaffold(modifier = Modifier.fillMaxSize().padding(top=20.dp)) { innerPadding ->
+    Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
         NavHost(navCtrl, startDestination = "/Home"){
             composable("/Home"){
                 HomeScreen(

@@ -19,7 +19,8 @@ class SongRepository(private val context: Context) {
             arrayOf(
                 MediaStore.Audio.Media._ID,
                 MediaStore.Audio.Media.TITLE,
-                MediaStore.Audio.Media.ARTIST
+                MediaStore.Audio.Media.ARTIST,
+                MediaStore.Audio.Media.ALBUM_ID
             ),
             "${MediaStore.Audio.Media.IS_MUSIC} != 0",
             null,
@@ -30,13 +31,15 @@ class SongRepository(private val context: Context) {
             val idCol     :Int = it.getColumnIndexOrThrow(MediaStore.Audio.Media._ID)
             val titleCol  :Int = it.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE)
             val artistCol :Int = it.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST)
+            val AlbumCol  :Int = it.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID)
 
             while(it.moveToNext()){
                 val id     :Long   = it.getLong(idCol)
                 val title  :String = it.getString(titleCol)
                 val artist :String = it.getString(artistCol)
+                val albumid:Long   = it.getLong(AlbumCol)
 
-                songs.add( Song( id, title, artist ))
+                songs.add( Song( id, title, artist, albumid ))
             }
         }
         return songs
@@ -49,7 +52,8 @@ class SongRepository(private val context: Context) {
             MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
             arrayOf(
                 MediaStore.Audio.Media.TITLE,
-                MediaStore.Audio.Media.ARTIST
+                MediaStore.Audio.Media.ARTIST,
+                MediaStore.Audio.Media.ALBUM_ID
             ),
             "${MediaStore.Audio.Media._ID} =?" ,
             arrayOf(songId.toString()),
@@ -59,9 +63,11 @@ class SongRepository(private val context: Context) {
         cursor?.use{
             if (it.moveToFirst()){
                 return Song(
-                    songId,
-                    it.getString(it.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE)),
-                    it.getString(it.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST))
+                    id     =  songId,
+                    title  =  it.getString(it.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE)),
+                    artist =  it.getString(it.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST)),
+                   // albumArtUri = getAlbumArtUri(songId)
+                    albumid = it.getLong(it.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID))
                 )
             }
         }
@@ -69,26 +75,4 @@ class SongRepository(private val context: Context) {
         return null
     }
 
-    // uri will be used to get actual media in frontEnd
-    fun getAlbumArtUri(songId : Long): Uri?{
-        val cursor = context.contentResolver.query(
-            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-            arrayOf(MediaStore.Audio.Media.ALBUM_ID),
-            "${MediaStore.Audio.Media._ID} =?",
-            arrayOf(songId.toString()),
-            null
-        )
-
-        cursor?.use {
-            if(it.moveToFirst()){
-                val albumId = it.getLong(it.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID))
-
-                return ContentUris.withAppendedId(
-                    MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI,
-                    albumId
-                )
-            }
-        }
-        return null
-    }
 }

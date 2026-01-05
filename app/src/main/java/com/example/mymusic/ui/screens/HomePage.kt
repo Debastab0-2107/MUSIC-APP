@@ -1,6 +1,7 @@
 package com.example.mymusic.ui.screens
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -20,6 +21,8 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PlayArrow
@@ -31,22 +34,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.example.mymusic.R
 import com.example.mymusic.Song
 import com.example.mymusic.ui.SongRepository
 
-/*val songs = listOf(
-    Song(1, "Test Song 1", "Artist A"),
-    Song(2, "Test Song 2", "Artist B"),
-    Song(3, "Test Song 3", "Artist C"),
-    Song(4, "Test Song 4", "Artist D"),
-    Song(5, "Test Song 5", "Artist E")
-)*/
+
 @Composable
 fun HomeScreen(modifier: Modifier=Modifier,
                onSongClick: (Long) -> Unit,
@@ -77,22 +79,34 @@ fun HomeScreen(modifier: Modifier=Modifier,
 
 @Composable
 fun SongTile(song:Song, onClick: ()->Unit){
-    Row( modifier = Modifier.padding(10.dp),
+    Row( modifier = Modifier
+                    .padding(10.dp)
+                    .clickable { onClick() },
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(6.dp)
         ) {
-        Image(
-            painter = painterResource(R.drawable.cover),
-            contentDescription = null,
-            modifier = Modifier.fillMaxHeight().aspectRatio(1f).weight(0.2f)
+//        Image(
+//            painter = painterResource(R.drawable.cover),
+//            contentDescription = null,
+//            modifier = Modifier.fillMaxHeight().aspectRatio(1f).weight(0.2f)
+//        )
+        AsyncImage(
+            model= song.getAlbumArtUri(),
+            contentDescription = "Album Art",
+            modifier = Modifier
+                .aspectRatio(1f)
+                .padding(10.dp).weight(0.25f)
+                .clip(RoundedCornerShape(10.dp))
+                .border(1.5.dp, Color.White, RoundedCornerShape(10.dp)),
+            fallback = painterResource(R.drawable.img),
+            error = painterResource(R.drawable.img)
         )
         Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .clickable { onClick() }.weight(0.8f)
+                .fillMaxWidth().weight(0.75f)
         ) {
             //Song name section
-            Text(text = song.title, style = MaterialTheme.typography.titleMedium)
+            Text(text = song.title, fontSize = 17.sp)
 
             //Artist section
             Row(

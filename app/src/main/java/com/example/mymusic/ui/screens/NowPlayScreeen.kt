@@ -3,22 +3,18 @@ package com.example.mymusic.ui.screens
 
 
 import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -37,15 +33,20 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.pointer.motionEventSpy
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.AsyncImage
 import com.example.mymusic.R
 import com.example.mymusic.ui.PlayerViewModel
 
@@ -54,54 +55,143 @@ import com.example.mymusic.ui.PlayerViewModel
 fun NowPlayScreen(
     playerViewModel: PlayerViewModel
 ){
+
+    val song by playerViewModel.currsong.collectAsState()
     val isPlaying by playerViewModel.isPlaying.collectAsState() //CHANGED IN PLACE OF MUTABLE
     var sliderPosition by remember { mutableStateOf(0.5f) }
 
+    // ✅ Animatable for rotation control
+    val rotation = remember { Animatable(0f) }
+    // ✅ Start / Stop rotation based on isPlaying
+    LaunchedEffect(isPlaying) {
+        if (isPlaying) {
+            while (true) {
+                rotation.animateTo(
+                    targetValue = rotation.value + 360f,
+                    animationSpec = tween(
+                        durationMillis = 7000,
+                        easing = LinearEasing
+                    )
+                )
+            }
+        } else {
+            rotation.stop()
+        }
+    }
+
+
 
     Surface( modifier=Modifier.fillMaxSize()) {
-        Column(modifier=Modifier.background(Color.White).padding(10.dp).fillMaxSize()){
-            Image(
-                painter = painterResource(R.drawable.cover),
-                null,
+        Box( modifier= Modifier.background(Color.Black).fillMaxSize() ){
+
+            AsyncImage(
+                model=song?.getAlbumArtUri(),
+                contentDescription = "Album Art",
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .aspectRatio(1f)
+                    .fillMaxSize()
+                    .blur(14.dp)
+                    .alpha(0.75f),
+                   // .aspectRatio(1f)
+                contentScale = ContentScale.Crop,
+                fallback = painterResource(R.drawable.img),
+                error = painterResource(R.drawable.img)
             )
-            Text(
-                text="Song Title",
-                fontSize = 20.sp,
-                fontFamily = FontFamily.Serif,
-                modifier = Modifier.padding(start = 12.dp, top = 10.dp),
-                color = Color.Black
-            )
-            Text(
-                text="Artist Name ",
-                fontSize = 15.sp,
-                fontFamily = FontFamily.Serif,
-                modifier = Modifier.padding(start = 12.dp),
-                color = Color.Black
-            )
-            SongProgress(value = sliderPosition, onValueChange = { sliderPosition = it } )
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                PlaybackControl({}, icon = Icons.Default.Face, "shuffle")
-                PlaybackControl({}, icon = Icons.AutoMirrored.Filled.KeyboardArrowLeft, "prev")
-                CrossfadeIcon(
-                    isPlaying = isPlaying,
-                    onToggle = {
-                        if (isPlaying){
-                            playerViewModel.pause()
-                        }else{
-                            playerViewModel.resume()
+            Column(modifier=Modifier.background(Color.Transparent).padding(10.dp).fillMaxSize()){
+                    Spacer(modifier = Modifier.size(40.dp))
+                    Box(
+                        modifier = Modifier.padding(0.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        AsyncImage(
+                            model=song?.getAlbumArtUri(),
+                            contentDescription = "Album Art",
+                            modifier = Modifier
+                                .aspectRatio(1f)
+                                .padding(45.dp),
+                            contentScale = ContentScale.FillWidth,
+                                    /*.aspectRatio(1f)
+                                    .padding(10.dp)
+                                    .graphicsLayer {
+                                        rotationZ = rotation.value
+                                    }
+                                    .clip(CircleShape)
+                                    .border(2.5.dp, Color.White, CircleShape),
+                            contentScale = ContentScale.Crop,*/
+                            fallback = painterResource(R.drawable.img),
+                            error = painterResource(R.drawable.img)
+                        )
+
+                        Image(
+                            painter = painterResource(R.drawable.module),
+                            null,
+                            modifier = Modifier
+                                .aspectRatio(1f)
+                                .padding(0.dp)
+                        )
+                        Row(
+                            modifier = Modifier.background(Color.Black.copy(alpha = 0.515f), shape = RoundedCornerShape(35.dp))
+                                .padding(5.dp)
+                        ){
+                            Image(
+                                painter=painterResource(R.drawable.roller3),
+                                contentDescription = "roller",
+                                modifier = Modifier
+                                    .size(60.dp)
+                                    .graphicsLayer {
+                                        rotationZ = rotation.value
+                                    }
+                            )
+                            Spacer( modifier = Modifier.size(50.dp))
+                            Image(
+                                painter=painterResource(R.drawable.roller3),
+                                contentDescription = "roller",
+                                modifier = Modifier
+                                    .size(60.dp)
+                                    .graphicsLayer {
+                                        rotationZ = rotation.value
+                                    }
+                            )
                         }
-                    } ,
-                )
-                PlaybackControl({}, icon = Icons.AutoMirrored.Filled.KeyboardArrowRight, "next")
-                PlaybackControl({}, icon = Icons.Default.FavoriteBorder, "fav")
-            }
+                    }
+                    Spacer(modifier = Modifier.size(30.dp))
+
+                    Text(
+                        text=song?.title ?: "Unknown Title",
+                        fontSize = 20.sp,
+                        fontFamily = FontFamily.Serif,
+                        modifier = Modifier.padding(start = 12.dp, top = 10.dp),
+                        color = Color.White
+                    )
+                    Text(
+                        text=song?.artist ?: "Unknown Title",
+                        fontSize = 15.sp,
+                        fontFamily = FontFamily.Serif,
+                        modifier = Modifier.padding(start = 12.dp),
+                        color = Color.White
+                    )
+                    SongProgress(value = sliderPosition, onValueChange = { sliderPosition = it } )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        PlaybackControl({}, icon = Icons.Default.Face, "shuffle")
+                        PlaybackControl({}, icon = Icons.AutoMirrored.Filled.KeyboardArrowLeft, "prev")
+                        CrossfadeIcon(
+                            isPlaying = isPlaying,
+                            onToggle = {
+                                if (isPlaying){
+                                    playerViewModel.pause()
+                                }else{
+                                    playerViewModel.resume()
+                                }
+                            } ,
+                        )
+                        PlaybackControl({}, icon = Icons.AutoMirrored.Filled.KeyboardArrowRight, "next")
+                        PlaybackControl({}, icon = Icons.Default.FavoriteBorder, "fav")
+                    }
+                }
+
         }
     }
 
@@ -132,7 +222,7 @@ fun SongProgress(value: Float, onValueChange: (Float) -> Unit) {
                 val progress: Float = it.value / it.valueRange.endInclusive
 
                 drawRoundRect(
-                    color = Color.LightGray,
+                    color = Color.DarkGray,
                     cornerRadius = CornerRadius(50f, 50f)
                 )
                 drawRoundRect(
@@ -189,9 +279,9 @@ fun CrossfadeIcon(
          ){ playingState ->
              if (playingState) {
                  Icon(
-                     imageVector = Icons.Filled.Settings,
+                     painter= painterResource(R.drawable.pause),
                      contentDescription = "Pause",
-                     modifier = Modifier.size(48.dp),
+                     modifier = Modifier.size(58.dp),
                      tint = Color.White
 
                  )
@@ -200,7 +290,7 @@ fun CrossfadeIcon(
                  Icon(
                      imageVector = Icons.Filled.PlayArrow,
                      contentDescription = "Play",
-                     modifier = Modifier.size(48.dp),
+                     modifier = Modifier.size(58.dp),
                      tint = Color.White
                  )
              }
@@ -219,56 +309,118 @@ fun NowPlayScreenn(
     val isPlaying by remember { mutableStateOf(false)} //CHANGED IN PLACE OF MUTABLE
     var sliderPosition by remember { mutableStateOf(0.5f) }
 
+    val infiniteTransition = rememberInfiniteTransition(label = "rotation")
 
+    val rotation by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 360f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(
+                durationMillis = 7000, // speed (higher = slower)
+                easing = LinearEasing
+            ),
+            repeatMode = RepeatMode.Restart
+        ),
+        label = "rotationAnim"
+    )
     Surface( modifier=Modifier.fillMaxSize()) {
-        Column(modifier=Modifier.background(Color.Black).padding(10.dp).fillMaxSize()){
-            Spacer(modifier = Modifier.size(40.dp))
+        Box(modifier= Modifier.background(Color.Black).fillMaxSize() ){
+
             Image(
-                painter = painterResource(R.drawable.cover),
-                null,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .aspectRatio(1f)
-                    .padding(10.dp)
-                    .clip(RoundedCornerShape(30.dp))
-                    .border(2.5.dp, Color.White,RoundedCornerShape(30.dp) )
-            )
-            Text(
-                text="Song Title",
-                fontSize = 27.sp,
-                fontFamily = FontFamily.Serif,
-                modifier = Modifier.padding(start = 12.dp, top = 10.dp),
-                color = Color.White
-            )
-            Text(
-                text="Artist Name ",
-                fontSize = 20.sp,
-                fontFamily = FontFamily.Serif,
-                modifier = Modifier.padding(start = 12.dp),
-                color = Color.White
-            )
-            SongProgress(value = sliderPosition, onValueChange = { sliderPosition = it } )
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                PlaybackControl({}, icon = Icons.Default.Face, "shuffle")
-                PlaybackControl({}, icon = Icons.AutoMirrored.Filled.KeyboardArrowLeft, "prev")
-                CrossfadeIcon(
-                    isPlaying = isPlaying,
-                    onToggle = {
-                        if (isPlaying){
-                           // playerViewModel.pause()
-                        }else{
-                           // playerViewModel.resume()
-                        }
-                    } ,
+                    painter = painterResource(R.drawable.artboard2),
+                    null,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .blur(14.dp)
+                        .alpha(0.75f),
+                    contentScale = ContentScale.Crop
                 )
-                PlaybackControl({}, icon = Icons.AutoMirrored.Filled.KeyboardArrowRight, "next")
-                PlaybackControl({}, icon = Icons.Default.FavoriteBorder, "fav")
+
+            Column(modifier=Modifier.background(Color.Transparent).padding(10.dp).fillMaxSize()){
+                Spacer(modifier = Modifier.size(50.dp))
+                Box(
+                    modifier = Modifier.padding(0.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Image(
+                        painter = painterResource(R.drawable.img),
+                        null,
+                        modifier = Modifier
+                            .aspectRatio(1f)
+                            .padding(45.dp),
+                        contentScale = ContentScale.FillWidth
+                    )
+                    Image(
+                        painter = painterResource(R.drawable.module),
+                        null,
+                        modifier = Modifier
+                            .aspectRatio(1f)
+                            .padding(0.dp)
+                    )
+                    Row(
+                        modifier = Modifier.background(Color.White.copy(alpha = 0.615f), shape = RoundedCornerShape(35.dp))
+                            .padding(5.dp)
+                    ){
+                        Image(
+                            painter=painterResource(R.drawable.roller),
+                            contentDescription = "roller",
+                            modifier = Modifier
+                                .size(60.dp)
+                                .graphicsLayer {
+                                    rotationZ = rotation
+                                }
+                        )
+                        Spacer( modifier = Modifier.size(50.dp))
+                        Image(
+                            painter=painterResource(R.drawable.roller),
+                            contentDescription = "roller",
+                            modifier = Modifier
+                                .size(60.dp)
+                                .graphicsLayer {
+                                    rotationZ = rotation
+                                }
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.size(30.dp))
+                Text(
+                    text="Song Title",
+                    fontSize = 27.sp,
+                    fontFamily = FontFamily.Serif,
+                    modifier = Modifier.padding(start = 12.dp, top = 10.dp),
+                    color = Color.White
+                )
+                Text(
+                    text="Artist Name ",
+                    fontSize = 20.sp,
+                    fontFamily = FontFamily.Serif,
+                    modifier = Modifier.padding(start = 12.dp),
+                    color = Color.White
+                )
+                SongProgress(value = sliderPosition, onValueChange = { sliderPosition = it } )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    PlaybackControl({}, icon = Icons.Default.Face, "shuffle")
+                    PlaybackControl({}, icon = Icons.AutoMirrored.Filled.KeyboardArrowLeft, "prev")
+                    CrossfadeIcon(
+                        isPlaying = isPlaying,
+                        onToggle = {
+                            if (isPlaying){
+                                // playerViewModel.pause()
+                            }else{
+                                // playerViewModel.resume()
+                            }
+                        } ,
+                    )
+                    PlaybackControl({}, icon = Icons.AutoMirrored.Filled.KeyboardArrowRight, "next")
+                    PlaybackControl({}, icon = Icons.Default.FavoriteBorder, "fav")
+                }
             }
         }
+
     }
 
 }
