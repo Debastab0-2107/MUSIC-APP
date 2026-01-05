@@ -69,7 +69,7 @@ fun NowPlayScreen(
                 rotation.animateTo(
                     targetValue = rotation.value + 360f,
                     animationSpec = tween(
-                        durationMillis = 7000,
+                        durationMillis = 20000,
                         easing = LinearEasing
                     )
                 )
@@ -107,51 +107,26 @@ fun NowPlayScreen(
                             contentDescription = "Album Art",
                             modifier = Modifier
                                 .aspectRatio(1f)
-                                .padding(45.dp),
-                            contentScale = ContentScale.FillWidth,
-                                    /*.aspectRatio(1f)
-                                    .padding(10.dp)
-                                    .graphicsLayer {
+                                .padding(10.dp)
+                                .clip(CircleShape)
+                                .graphicsLayer {
                                         rotationZ = rotation.value
                                     }
-                                    .clip(CircleShape)
-                                    .border(2.5.dp, Color.White, CircleShape),
-                            contentScale = ContentScale.Crop,*/
+                                .border(2.5.dp, Color.White, CircleShape),
+                            contentScale = ContentScale.Crop,
                             fallback = painterResource(R.drawable.img),
                             error = painterResource(R.drawable.img)
                         )
 
                         Image(
-                            painter = painterResource(R.drawable.module),
+                            painter = painterResource(R.drawable.cd),
                             null,
                             modifier = Modifier
                                 .aspectRatio(1f)
-                                .padding(0.dp)
+                                .padding(10.dp)
+                                .alpha(0.5f)
                         )
-                        Row(
-                            modifier = Modifier.background(Color.Black.copy(alpha = 0.515f), shape = RoundedCornerShape(35.dp))
-                                .padding(5.dp)
-                        ){
-                            Image(
-                                painter=painterResource(R.drawable.roller3),
-                                contentDescription = "roller",
-                                modifier = Modifier
-                                    .size(60.dp)
-                                    .graphicsLayer {
-                                        rotationZ = rotation.value
-                                    }
-                            )
-                            Spacer( modifier = Modifier.size(50.dp))
-                            Image(
-                                painter=painterResource(R.drawable.roller3),
-                                contentDescription = "roller",
-                                modifier = Modifier
-                                    .size(60.dp)
-                                    .graphicsLayer {
-                                        rotationZ = rotation.value
-                                    }
-                            )
-                        }
+
                     }
                     Spacer(modifier = Modifier.size(30.dp))
 
@@ -347,40 +322,19 @@ fun NowPlayScreenn(
                         null,
                         modifier = Modifier
                             .aspectRatio(1f)
-                            .padding(45.dp),
-                        contentScale = ContentScale.FillWidth
+                            .padding(10.dp)
+                            .clip(CircleShape)
+
                     )
                     Image(
-                        painter = painterResource(R.drawable.module),
+                        painter = painterResource(R.drawable.cd),
                         null,
                         modifier = Modifier
                             .aspectRatio(1f)
-                            .padding(0.dp)
+                            .padding(10.dp)
+                            .alpha(0.5f)
                     )
-                    Row(
-                        modifier = Modifier.background(Color.White.copy(alpha = 0.615f), shape = RoundedCornerShape(35.dp))
-                            .padding(5.dp)
-                    ){
-                        Image(
-                            painter=painterResource(R.drawable.roller),
-                            contentDescription = "roller",
-                            modifier = Modifier
-                                .size(60.dp)
-                                .graphicsLayer {
-                                    rotationZ = rotation
-                                }
-                        )
-                        Spacer( modifier = Modifier.size(50.dp))
-                        Image(
-                            painter=painterResource(R.drawable.roller),
-                            contentDescription = "roller",
-                            modifier = Modifier
-                                .size(60.dp)
-                                .graphicsLayer {
-                                    rotationZ = rotation
-                                }
-                        )
-                    }
+
                 }
                 Spacer(modifier = Modifier.size(30.dp))
                 Text(
