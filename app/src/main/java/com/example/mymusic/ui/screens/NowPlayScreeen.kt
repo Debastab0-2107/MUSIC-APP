@@ -355,14 +355,13 @@ fun NowPlayScreenn(
                         null,
                         modifier = Modifier
                             .aspectRatio(1f)
-                            .padding(0.dp)
                     )
                     Row(
                         modifier = Modifier.background(Color.White.copy(alpha = 0.615f), shape = RoundedCornerShape(35.dp))
                             .padding(5.dp)
                     ){
                         Image(
-                            painter=painterResource(R.drawable.roller),
+                            painter=painterResource(R.drawable.roller2),
                             contentDescription = "roller",
                             modifier = Modifier
                                 .size(60.dp)
@@ -372,7 +371,7 @@ fun NowPlayScreenn(
                         )
                         Spacer( modifier = Modifier.size(50.dp))
                         Image(
-                            painter=painterResource(R.drawable.roller),
+                            painter=painterResource(R.drawable.roller2),
                             contentDescription = "roller",
                             modifier = Modifier
                                 .size(60.dp)
